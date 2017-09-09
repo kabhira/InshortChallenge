@@ -1,8 +1,35 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.abhi.inshortchallenge.view.KickListFragment">
+    tools:context="com.abhi.inshortchallenge.view.InshortListFragment">
+
+    <LinearLayout
+        android:id="@+id/top_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/list_favourite"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Favourite"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/old_new"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="OLD->NEW"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/new_old"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="NEW->OLD"
+            android:layout_weight="1" />
+    </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/item_recycler_view"
@@ -11,4 +38,4 @@
         android:layout_height="fill_parent"
         android:layout_below="@+id/top_section" />
 
-</FrameLayout>
+</RelativeLayout>

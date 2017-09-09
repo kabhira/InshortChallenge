@@ -22,7 +22,7 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         fragmentManager = getSupportFragmentManager();
-        FragmentTransactionHelper.switchFragment(this, R.id.content, KickListFragment.newInstance());
+        FragmentTransactionHelper.switchFragment(this, R.id.content, InshortListFragment.newInstance());
     }
 
     public void setActionBarHome(boolean flag) {

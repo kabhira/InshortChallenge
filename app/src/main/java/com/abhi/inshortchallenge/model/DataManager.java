@@ -1,6 +1,6 @@
 package com.abhi.inshortchallenge.model;
 
-import com.abhi.inshortchallenge.Network.KickStartRequest;
+import com.abhi.inshortchallenge.Network.InshortRequest;
 import com.abhi.inshortchallenge.Network.VolleyNetwork;
 import com.abhi.inshortchallenge.events.EventBusSingleton;
 import com.abhi.inshortchallenge.utilities.CustomApplication;
@@ -18,16 +18,18 @@ import java.util.LinkedList;
 public class DataManager {
 
     private static  DataManager instance = new DataManager();
-    private ArrayList<KickStartResponseElement> mainList;
-    public HashMap<String, LinkedList<KickStartResponseElement>> catagoryMap;
+    private ArrayList<InshortResponseElement> mainList;
+    public HashMap<String, LinkedList<InshortResponseElement>> catagoryMap;
+    private ArrayList<InshortResponseElement> favouriteList;
 
     private DataManager(){
-        mainList = new ArrayList<KickStartResponseElement>();
-        catagoryMap = new HashMap<String, LinkedList<KickStartResponseElement>>();
+        mainList = new ArrayList<InshortResponseElement>();
+        catagoryMap = new HashMap<String, LinkedList<InshortResponseElement>>();
+        favouriteList = new ArrayList<>();
 
         EventBusSingleton.instance().register(this);
-        KickStartRequest kickStartRequest = new KickStartRequest();
-        VolleyNetwork.getInstance(CustomApplication.getmContext()).addToRequestQueue(kickStartRequest);
+        InshortRequest inshortRequest = new InshortRequest();
+        VolleyNetwork.getInstance(CustomApplication.getmContext()).addToRequestQueue(inshortRequest);
     }
 
     public static DataManager instance()
@@ -35,36 +37,26 @@ public class DataManager {
         return instance;
     }
 
-    public synchronized ArrayList<KickStartResponseElement> getMainList(){
+    public synchronized ArrayList<InshortResponseElement> getMainList(){
         return mainList;
     }
-
-    /*@Subscribe
-    public void updateArray(Articles data){
-        getNewsList().clear();
-        getNewsList().addAll(data.getArticles());
-
-        for(NewsData newsData : data.getArticles()){
-            if(catagoryMap.containsKey(newsData.getCategory())){
-                catagoryMap.get(newsData.getCategory()).add(newsData);
-            }
-            else {
-                LinkedList<NewsData> list = new LinkedList<NewsData>();
-                list.add(newsData);
-                catagoryMap.put(newsData.getCategory(), list);
-            }
-        }
-
-        EventBusSingleton.instance().postEvent(new ViewUpdateEvent());
-    }*/
 
 
 
     @Subscribe
-    public void updateArray(KickStartResponseElement[] data){
+    public void updateArray(InshortResponseElement[] data){
 
         mainList.clear();
         mainList.addAll(Arrays.asList(data));
+    }
+
+    public void addToFavouriteList(InshortResponseElement inshortResponseElement) {
+        if(!favouriteList.contains(inshortResponseElement))
+            favouriteList.add(inshortResponseElement);
+    }
+
+    public ArrayList<InshortResponseElement> getFavouriteList() {
+        return favouriteList;
     }
 
 }

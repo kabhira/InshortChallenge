@@ -1,23 +1,16 @@
 package com.abhi.inshortchallenge.utilities;
 
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.abhi.inshortchallenge.Network.VolleyNetwork;
 import com.abhi.inshortchallenge.R;
-import com.abhi.inshortchallenge.model.KickStartResponseElement;
-import com.abhi.inshortchallenge.view.KickDetailFragment;
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.NetworkImageView;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
+import com.abhi.inshortchallenge.model.InshortResponseElement;
+import com.abhi.inshortchallenge.view.InshortDetailFragment;
 
 import java.util.List;
 
@@ -27,33 +20,30 @@ import java.util.List;
  */
 
 public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
-    private List<KickStartResponseElement> mDataset;
+    private List<InshortResponseElement> mDataset;
     private FragmentActivity mActivity;
+    private CustomAlertDialog customAlertDialog;
+    private int loadCount = 20;
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        public TextView mTextViewTitle, mTextViewBackers, mTextViewPleadge, mTextViewnoDays;
-        public NetworkImageView mImageView;
-        public ProgressBar percentageProgress;
+        public TextView mTextViewTitle, cellPublisher, cellUrl;
         public ViewHolder(View v) {
             super(v);
             mTextViewTitle = (TextView) v.findViewById(R.id.cell_title);
-            percentageProgress = (ProgressBar) v.findViewById(R.id.percentage_progress);
-            mTextViewBackers = (TextView) v.findViewById(R.id.cell_backers);
-            mTextViewPleadge = (TextView) v.findViewById(R.id.cell_pleadge);
-            mTextViewnoDays = (TextView) v.findViewById(R.id.cell_no_days);
-            mImageView = (NetworkImageView) v.findViewById(R.id.cell_imageView);
+            cellPublisher = (TextView) v.findViewById(R.id.cell_publisher);
+            cellUrl = (TextView) v.findViewById(R.id.cell_url);
             v.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
-            KickDetailFragment baseFragment = KickDetailFragment.newInstance();
+            InshortDetailFragment baseFragment = InshortDetailFragment.newInstance();
             FragmentTransactionHelper.addFragmentWithModelObject(mActivity, R.id.content, baseFragment, mDataset.get(getAdapterPosition()) );
         }
     }
 
-    public ListAdapter(List<KickStartResponseElement> myDataset, FragmentActivity activity) {
+    public ListAdapter(List<InshortResponseElement> myDataset, FragmentActivity activity) {
         mDataset = myDataset;
         mActivity = activity;
     }
@@ -71,21 +61,23 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        holder.mTextViewTitle.setText(mDataset.get(position).getTitle());
-        holder.mTextViewBackers.setText(mDataset.get(position).getCurrency()+" "+mDataset.get(position).getAmtpledged());
-        holder.mTextViewPleadge.setText(mDataset.get(position).getNumbackers());
-        holder.mTextViewnoDays.setText(mDataset.get(position).getPercentagefunded()+"%");
-        holder.percentageProgress.setProgress(mDataset.get(position).getPercentagefunded());
+        holder.mTextViewTitle.setText(mDataset.get(position).getTITLE());
+        holder.cellPublisher.setText(mDataset.get(position).getPUBLISHER());
+        holder.cellUrl.setText(mDataset.get(position).getURL());
 
-        holder.mImageView.setDefaultImageResId(R.drawable.kick);
-
-        if(mDataset.get(position).getImageURL() == null) {
-            Thread thread = new Thread(new Task(mDataset.get(position), holder));
-            thread.start();
-        }
-        else {
-            ImageLoader imageLoader = VolleyNetwork.getInstance(CustomApplication.getmContext()).getImageLoader();
-            holder.mImageView.setImageUrl(mDataset.get(position).getImageURL(), imageLoader);
+        if( (position == getItemCount()-1) && mDataset.size()>20) {
+            // Last Element.
+            customAlertDialog = new CustomAlertDialog(mActivity);
+            customAlertDialog.createProgressDialog("Loading..");
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    customAlertDialog.dismissProgressDialog();
+                    ListAdapter.this.notifyDataSetChanged();
+                }
+            }, 1000);
+            loadNextPage();
         }
 
     }
@@ -93,48 +85,13 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return mDataset.size();
+        if(loadCount > mDataset.size())
+            return mDataset.size();
+
+        return loadCount;
     }
 
-
-
-    /**
-     * Thread to fetch Image Url on the HTML page using Jsoup library
-     */
-
-    class Task implements Runnable{
-        private KickStartResponseElement element;
-        private ViewHolder holder;
-
-        public Task(KickStartResponseElement element, ViewHolder holder){
-            this.element = element;
-            this.holder = holder;
-        }
-
-        @Override
-        public void run() {
-            Document doc;
-            try {
-
-                String urL = "https://www.kickstarter.com"+element.getUrl();
-                doc = Jsoup.connect(urL).get();
-
-                Element imageElement = doc.select("img.js-feature-image").first();
-                String absoluteUrl = imageElement.absUrl("src");
-                element.setImageURL(absoluteUrl);
-
-                mActivity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ImageLoader imageLoader = VolleyNetwork.getInstance(mActivity).getImageLoader();
-                        holder.mImageView.setImageUrl(element.getImageURL(), imageLoader);
-                    }
-                });
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
+    private void loadNextPage() {
+        loadCount = loadCount+20;
     }
 }
