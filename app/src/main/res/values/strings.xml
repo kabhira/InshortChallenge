@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Inshort</string>
+    <string name="title_item_detail">Item Detail</string>
+
+    <!-- Alert Dialog -->
+    <string name="network_response_empty_array_string">No data exists for this request.</string>
+    <string name="alert_dialog_title_text">Alert!</string>
+    <string name="alert_dialog_positive_text">OK</string>
+
+    <!-- Network Layout -->
+    <string name="connection_ckeck_test">Check your connection and try again.</string>
+    <string name="connection_check_button">Retry</string>
+    <string name="network_error_string">Connection Error or Client unable to parse response.</string>
+    <string name="network_response_error_string">Server returned failed status.</string>
+</resources>
